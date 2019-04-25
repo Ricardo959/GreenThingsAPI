@@ -1,0 +1,11 @@
+body {
+    background-color: forestgreen;
+    font-family: "arial", "verdana", "sans-serif";;
+}
+
+h1, h5 {
+    color: white;
+    width: 100%;
+    text-align: center;
+}
+

@@ -1,0 +1,21 @@
+{
+  "name": "greenthingsapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "consolidate": "^0.15.1",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "mosca": "latest",
+    "mqtt": "latest",
+    "mustache": "^3.0.1",
+    "mongodb": "latest"
+  }
+}
