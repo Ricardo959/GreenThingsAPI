@@ -1,7 +1,7 @@
 
 // ---------------- Constantes ----------------
 
-const USERNAME = 'admin';
+const USERNAME = 'greenthing';
 const PASSWORD = 'xyzlmnop';
 const DBADDRESS = 'mongodb://localhost:27017';
 
@@ -48,7 +48,7 @@ mongo.connect(DBADDRESS, function(err, db) {
 let broker = new mosca.Server({port: 1883, http: {port: 8080}});
 
 broker.on('ready', function(){
-    console.log("Mosca server running on mqtt://%s:%s", IP, 1883);
+    console.log("Mosca server listening on mqtt://%s:%s", IP, 1883);
 });
 
 broker.authenticate = function(client, username, password, callback) {
@@ -92,7 +92,6 @@ client.on('message', function (topic, msg) {
 // ---------------- Requisições ----------------
 
 /* Entrada para cadastro de um dispositivo:
-
 {
     "mac": "112233445566",
     "sensors": [
@@ -102,7 +101,6 @@ client.on('message', function (topic, msg) {
         { "type": "v" },
         { "type": "l" } ]
 }
-
 */
 
 function newDevice(msg) {
@@ -111,6 +109,7 @@ function newDevice(msg) {
 
         let payload = {};
         if ('mac' in data) payload['mac'] = parseInt(data['mac']);
+        payload['sleep_time'] = 60;
         payload['online'] = 1;
 
         let sensorArray = [];
@@ -265,7 +264,7 @@ function addValue(msg) {
             });
         }
     } catch (err) {
-        console.log("ERROR 60 " + err);
+        console.log("ERROR 60: " + err);
     }
 }
 
