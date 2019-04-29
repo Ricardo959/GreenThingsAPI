@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Dashboard</title>
 
-  <title>Dashboard</title>
+    <link href="../styles/style.css" rel="stylesheet" />
+    <link href="../styles/Chart.css" rel="stylesheet" />
+  </head>
 
-  <link href="../styles/style.css" rel="stylesheet" />
-</head>
+  <body>
+    <h1>Welcome!</h1>
+    <h5>MQTT server is listening on <%= ip %>:1883.</h5>
 
-<body>
-  <h1>Welcome!</h1>
-  <h5>MQTT server is listening on <%= ip %>:1883.</h5>
-</body>
+    <canvas id="myChart"></canvas>
+  </body>
 
+  <script src="../scripts/Chart.js"></script>
+  <script src="../scripts/script.js"></script>
 </html>
