@@ -21,17 +21,14 @@ let mongo = require('mongodb').MongoClient;
 console.log("App initializing ...");
 
 let app = express();
-
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-let IP = 0;
-try {
-    IP = os.networkInterfaces()['Wi-Fi'][1]['address'];
-} catch (err) {
-    throw err;
-}
+let IP;
+if (os.networkInterfaces()['Wi-Fi']) IP = os.networkInterfaces()['Wi-Fi'][1]['address'];
+else if (os.networkInterfaces()['eno1']) IP = os.networkInterfaces()['eno1'][0]['address'];
+else throw 'ERROR 10: No internet connection found';
 
 
 // ---------------- MongoDB ----------------
@@ -46,7 +43,6 @@ mongo.connect(DBADDRESS, function(err, db) {
 // ---------------- Mosca MQTT Broker ----------------
 
 let broker = new mosca.Server({port: 1883, http: {port: 8080}});
-
 broker.on('ready', function(){
     console.log("Mosca server listening on mqtt://%s:%s", IP, 1883);
 });
@@ -56,7 +52,6 @@ broker.authenticate = function(client, username, password, callback) {
     if (authorized) broker.user = username;
     callback(null, authorized);
 };
-
 
 
 // ---------------- MQTT Client ----------------

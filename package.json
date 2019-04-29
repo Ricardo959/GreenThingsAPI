@@ -13,9 +13,9 @@
     "consolidate": "^0.15.1",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "mosca": "latest",
+    "mongodb": "latest",
+    "mosca": "^2.8.3",
     "mqtt": "latest",
-    "mustache": "^3.0.1",
-    "mongodb": "latest"
+    "mustache": "^3.0.1"
   }
 }
