@@ -30,6 +30,11 @@ if (os.networkInterfaces()['Wi-Fi']) IP = os.networkInterfaces()['Wi-Fi'][1]['ad
 else if (os.networkInterfaces()['eno1']) IP = os.networkInterfaces()['eno1'][0]['address'];
 else throw 'ERROR 10: No internet connection found';
 
+let readyCount = 0;
+function ready() {
+    readyCount++;
+    if (readyCount === 4) console.log("Ready to accept connections ...");
+}
 
 // ---------------- MongoDB ----------------
 
@@ -37,6 +42,7 @@ mongo.connect(DBADDRESS, function(err, db) {
     if (err) throw err;
     console.log("Connected to MongoDB on: " + DBADDRESS);
     db.close();
+    ready();
 });
 
 
@@ -45,6 +51,7 @@ mongo.connect(DBADDRESS, function(err, db) {
 let broker = new mosca.Server({port: 1883, http: {port: 8080}});
 broker.on('ready', function(){
     console.log("Mosca server listening on mqtt://%s:%s", IP, 1883);
+    ready();
 });
 
 broker.authenticate = function(client, username, password, callback) {
@@ -62,7 +69,8 @@ client.on('connect', function () {
     client.subscribe('/device/new');
     client.subscribe('/device/get');
     client.subscribe('/sensor/value');
-    console.log("MQTT client connected\nReady to accept connections ...");
+    console.log("Connected as MQTT client");
+    ready();
 });
 
 client.on('message', function (topic, msg) {
@@ -125,7 +133,7 @@ function newDevice(msg) {
                 let actuatorPayload = {};
                 if ('type' in data.actuators[i]) actuatorPayload['type'] = String(data.actuators[i]['type']);
                 actuatorPayload['current_state'] = 'null';
-                actuatorPayload['user_state'] = 'null';
+                actuatorPayload['user_state'] = 'off';
                 actuatorPayload['activation'] = [];
                 actuatorPayload['time_activation'] = [];
                 actuatorArray.push(actuatorPayload);
@@ -172,20 +180,24 @@ function getDevice(msg) {
                 console.log("ERROR 51: " + err);
             } else {
                 let dbo = db.db('greenhouse');
-                dbo.collection('devices').findOne(query, {'_id': 0, 'sensors.history': 0}, function(err, doc) {
+                let projectin = {"_id": 0, "online": 0, "sensors": 0, "actuators.current_state": 0};
+                dbo.collection('devices').find(query).project(projectin).toArray( function(err, docs) {
                     db.close();
+                    let payload = "error";
                     if (err) {
                         console.log("ERROR 52: " + err);
+                    } else if (!docs[0]) {
+                        console.log("No matching device found");
                     } else {
-                        let payload = JSON.stringify(doc);
-                        client.publish('/device/response', payload, {qos: 2, retain: true}, function(err) {
-                            if (err) {
-                                console.log("ERROR 53: " + err);
-                            } else {
-                                console.log("Requested device published");
-                            }
-                        });
+                        payload = JSON.stringify(docs[0]);
                     }
+                    client.publish('/device/response', payload, {qos: 2, retain: true}, function(err) {
+                        if (err) {
+                            console.log("ERROR 53: " + err);
+                        } else {
+                            console.log("Requested device published");
+                        }
+                    });
                 });
             }
         });
@@ -277,4 +289,6 @@ let server = app.listen(3000, function () {
     let port = server.address().port;
 
     console.log("Server listening on http://%s:%s", host, port);
+    ready();
 });
+
